@@ -70,6 +70,7 @@
                       </Group>
                       <Component id="btVisualizar" alignment="0" max="32767" attributes="0"/>
                       <Component id="btAlugar" alignment="0" max="32767" attributes="0"/>
+                      <Component id="btDevolucao" alignment="0" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
@@ -84,6 +85,8 @@
                   <Component id="btExcluir" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Component id="btAlugar" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace type="separate" max="-2" attributes="0"/>
+                  <Component id="btDevolucao" min="-2" max="-2" attributes="0"/>
                   <EmptySpace type="separate" max="-2" attributes="0"/>
                   <Component id="btVisualizar" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="32767" attributes="0"/>
@@ -145,7 +148,7 @@
         </Component>
         <Component class="javax.swing.JButton" name="btVisualizar">
           <Properties>
-            <Property name="text" type="java.lang.String" value="Visualizar"/>
+            <Property name="text" type="java.lang.String" value="Visualizar Todos"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btVisualizarActionPerformed"/>
@@ -155,6 +158,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Alugar"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btAlugarActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JTextField" name="tfBusca">
           <Events>
@@ -165,6 +171,14 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Pesquisa:"/>
           </Properties>
+        </Component>
+        <Component class="javax.swing.JButton" name="btDevolucao">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Devolu&#xe7;&#xe3;o"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btDevolucaoActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

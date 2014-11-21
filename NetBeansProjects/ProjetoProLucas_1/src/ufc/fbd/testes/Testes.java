@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import ufc.fbd.conexao.Conexao;
-import ufc.fbd.excecoes.ErroNaInsercaoException;
+import ufc.fbd.modelo.excecoes.ErroNaInsercaoException;
 import ufc.fbd.modelo.Aluga;
 import ufc.fbd.modelo.AlugaDAO;
 import ufc.fbd.modelo.CategoriaDAO;
@@ -36,7 +36,7 @@ public class Testes {
         AlugaDAO aluga = new AlugaDAO(connection);
         FuncionarioDAO funcionario = new FuncionarioDAO(connection);
         
-    public static void main(String[] args) {
+  //  public static void main(String[] args) {
  
         
             //categoria.addCategoria(new Categoria("Comédia"));
@@ -98,10 +98,10 @@ public class Testes {
         //_-----------------------CLASSE ALUGA
         
         
-        new Testes();
+      //  new Testes();
         
         
-}
+//}
 
     public Testes() {
         

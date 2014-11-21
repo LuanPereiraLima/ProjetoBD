@@ -54,6 +54,19 @@ public class AlugaDAO {
             Logger.getLogger(AlugaDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+     
+      public void realizarDevolucao(int id_filme){
+        String sql = "DELETE FROM aluga WHERE id_filme = ?";  
+        try {
+            PreparedStatement pstmt = conexao.prepareStatement(sql);
+            pstmt.setInt(1, id_filme);
+
+            pstmt.execute();
+            pstmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(AlugaDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     
      public Aluga getAluga(Aluga aluga){
         String sql = "SELECT * FROM aluga WHERE id_cliente = ? AND id_filme = ?";    

@@ -18,37 +18,37 @@ import javax.swing.table.DefaultTableModel;
 import ufc.fbd.conexao.Conexao;
 import ufc.fbd.modelo.Cliente;
 import ufc.fbd.modelo.ClienteDAO;
-import ufc.fbd.modelo.Filme;
 import ufc.fbd.modelo.FilmeDAO;
 import ufc.fbd.modelo.Funcionario;
+import ufc.fbd.modelo.FuncionarioDAO;
+import ufc.fbd.modelo.Locadora;
+import ufc.fbd.modelo.LocadoraDAO;
 
 /**
  *
  * @author Luan
  */
-public class TabelaClientes extends javax.swing.JFrame implements TableModelListener{
+public class TabelaLocadoras extends javax.swing.JFrame implements TableModelListener{
 
     /**
      * Creates new form ListaClientes
      */
     
     private DefaultTableModel modelo;
-    private ClienteDAO clienteDAO;
-    private FilmeDAO filmeDAO;
+    private LocadoraDAO locadoraDAO;
     private Connection conexao;
     private int selecionada = -1;
     private Funcionario funcionarioLogado;
     
-    public TabelaClientes(Funcionario funcionarioLogado){
+    public TabelaLocadoras(Funcionario funcionarioLogado){
         this.funcionarioLogado = funcionarioLogado;
         montandoModeloTabela();
         initComponents();
         setLocationRelativeTo(null);
         conexao = new Conexao().getConexao();
-        clienteDAO = new ClienteDAO(conexao);
-        filmeDAO = new FilmeDAO(conexao);
+        locadoraDAO = new LocadoraDAO(conexao);
         verificacaoInicial();
-        preenchendoListaClientes("");
+        preenchendoListaLocadoras("");
            jTable1.addMouseListener(new MouseListener() {
 
               @Override
@@ -56,7 +56,6 @@ public class TabelaClientes extends javax.swing.JFrame implements TableModelList
                   selecionada = jTable1.getSelectedRow();
                   btEditar.setEnabled(false);
                   btExcluir.setEnabled(false);
-                  btVisualizarFilmes.setEnabled(false);
                   if(selecionada != -1){
                       linhaSelecionada();
                   }
@@ -81,8 +80,6 @@ public class TabelaClientes extends javax.swing.JFrame implements TableModelList
            
            btEditar.setEnabled(false);
            btExcluir.setEnabled(false);
-           btVisualizarFilmes.setEnabled(false);
-           
     }
     
     private void montandoModeloTabela(){
@@ -91,14 +88,14 @@ public class TabelaClientes extends javax.swing.JFrame implements TableModelList
 
             },
             new String [] {
-                "ID", "Nome", "CPF", "Idade", "Qtd de Filmes Alugados"
+                "ID", "Nome", "Preço"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class
+                java.lang.Integer.class, java.lang.String.class, java.lang.Double.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false
+                false, false, false
             };
 
             @Override
@@ -114,40 +111,32 @@ public class TabelaClientes extends javax.swing.JFrame implements TableModelList
     }
     
     private void linhaSelecionada(){
-        Integer quantidade = (Integer) modelo.getValueAt(selecionada, 4);
-        
          btEditar.setEnabled(true);
          btExcluir.setEnabled(true);
-         
-         if(quantidade > 0)
-         btVisualizarFilmes.setEnabled(true);
     }
     
-      private void removendoLinhasTabela(){
+     private void removendoLinhasTabela(){
        modelo.setRowCount(0);
     }
     
-    private void preenchendoListaClientes(String nome){
+    private void preenchendoListaLocadoras(String nome){
         removendoLinhasTabela();
-        List<Cliente> listaClientes = clienteDAO.getClientesNome(nome);
-        if(listaClientes != null){
-            for(Cliente cliente : listaClientes){
-                int quantidade = clienteDAO.quantidadeFilmesAlugados(cliente.getIdCliente());
-                modelo.addRow(new Object[]{cliente.getIdCliente(), cliente.getNome(), cliente.getCpf(), cliente.getIdade(), quantidade});
+        List<Locadora> listaLocadoras = locadoraDAO.getLocadorasNome(nome);
+        if(listaLocadoras != null){
+            for(Locadora locadora : listaLocadoras){
+                modelo.addRow(new Object[]{locadora.getIdLocadora(), locadora.getNome(), locadora.getPrecoFilmes()});
             }
         }
     }
-    
-    
-    private void verificacaoInicial(){
-        List<Cliente> listaCliente = clienteDAO.getClientes();
-        if(listaCliente != null && listaCliente.size() > 0){
+
+     private void verificacaoInicial(){
+        List<Locadora> listaLocadoras = locadoraDAO.getLocadoras();
+        if(listaLocadoras != null && listaLocadoras.size() > 0){
         }else{
-            JOptionPane.showMessageDialog(null, "Não existem Clientes cadastrados."); 
+            JOptionPane.showMessageDialog(null, "Não existem Locadoras cadastrados."); 
             dispose();
         }
     }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -162,7 +151,6 @@ public class TabelaClientes extends javax.swing.JFrame implements TableModelList
         jTable1 = new javax.swing.JTable();
         btEditar = new javax.swing.JButton();
         btExcluir = new javax.swing.JButton();
-        btVisualizarFilmes = new javax.swing.JButton();
         btSair = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         tfBusca = new javax.swing.JTextField();
@@ -188,13 +176,6 @@ public class TabelaClientes extends javax.swing.JFrame implements TableModelList
         btExcluir.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btExcluirActionPerformed(evt);
-            }
-        });
-
-        btVisualizarFilmes.setText("Visualizar Alugados");
-        btVisualizarFilmes.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btVisualizarFilmesActionPerformed(evt);
             }
         });
 
@@ -233,8 +214,7 @@ public class TabelaClientes extends javax.swing.JFrame implements TableModelList
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btEditar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btExcluir, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btVisualizarFilmes, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btExcluir, javax.swing.GroupLayout.DEFAULT_SIZE, 138, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(btSair)))
@@ -247,13 +227,11 @@ public class TabelaClientes extends javax.swing.JFrame implements TableModelList
                 .addComponent(btEditar)
                 .addGap(18, 18, 18)
                 .addComponent(btExcluir)
-                .addGap(18, 18, 18)
-                .addComponent(btVisualizarFilmes)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 281, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btSair)
                 .addContainerGap())
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
+                .addGap(0, 6, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(tfBusca, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -279,25 +257,15 @@ public class TabelaClientes extends javax.swing.JFrame implements TableModelList
         dispose();
     }//GEN-LAST:event_btSairActionPerformed
 
-    private void btVisualizarFilmesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btVisualizarFilmesActionPerformed
-        if(selecionada > -1){
-            Integer id = (Integer) modelo.getValueAt(selecionada, 0);
-            new ListaFilmes(id).setVisible(true);
-        }else{
-            JOptionPane.showMessageDialog(null, "Selecione o Cliente na tabela");
-        }
-    }//GEN-LAST:event_btVisualizarFilmesActionPerformed
-
     private void btExcluirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btExcluirActionPerformed
         if(selecionada > -1){
             Integer id = (Integer) modelo.getValueAt(selecionada, 0);
-            if(JOptionPane.showConfirmDialog(null, "Tem certeza que deseja excluir o cliente selecionado?", "Exclusão", 2)== JOptionPane.OK_OPTION){
-            clienteDAO.dropCliente(new Cliente(id, null, 0, 0, null));
-            preenchendoListaClientes(tfBusca.getText());
+            if(JOptionPane.showConfirmDialog(null, "Tem certeza que deseja excluir a locadora selecionada?", "Exclusão", 2)== JOptionPane.OK_OPTION){
+            locadoraDAO.dropLocadora(id);
             selecionada = -1;
         }
         }else{
-            JOptionPane.showMessageDialog(null, "Selecione o Cliente na tabela");
+            JOptionPane.showMessageDialog(null, "Selecione a locadora na tabela");
         }
         atualizarAutomaticamente();
     }//GEN-LAST:event_btExcluirActionPerformed
@@ -305,42 +273,42 @@ public class TabelaClientes extends javax.swing.JFrame implements TableModelList
     private void btEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btEditarActionPerformed
         if(selecionada > -1){
             Integer id = (Integer) modelo.getValueAt(selecionada, 0);
-            Cliente cliente = clienteDAO.getCliente(id);
-            new EditarCliente(cliente, funcionarioLogado).setVisible(true);
+            Locadora locadora = locadoraDAO.getLocadora(id);
+            new EditarLocadora(locadora).setVisible(true);
             selecionada = -1;
         }else{
-            JOptionPane.showMessageDialog(null, "Selecione o Cliente na tabela");
+            JOptionPane.showMessageDialog(null, "Selecione a locadora na tabela");
         }
         atualizarAutomaticamente();
     }//GEN-LAST:event_btEditarActionPerformed
 
-     private void atualizarAutomaticamente(){
+    private void atualizarAutomaticamente(){
          new Thread(new Runnable() {
 
              @Override
              public void run() {
                  try {
-                     Thread.sleep(1000);
+                     Thread.sleep(500);
                  } catch (InterruptedException ex) {
                      Logger.getLogger(TabelaFilmes.class.getName()).log(Level.SEVERE, null, ex);
                  }
-                 preenchendoListaClientes(tfBusca.getText());
+                 preenchendoListaLocadoras(tfBusca.getText());
              }
          }).start();
     }
     
     private void tfBuscaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfBuscaActionPerformed
-       
+      
     }//GEN-LAST:event_tfBuscaActionPerformed
 
     private void tfBuscaKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfBuscaKeyTyped
-        preenchendoListaClientes(tfBusca.getText());
+         preenchendoListaLocadoras(tfBusca.getText());
     }//GEN-LAST:event_tfBuscaKeyTyped
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btEditar;
     private javax.swing.JButton btExcluir;
     private javax.swing.JButton btSair;
-    private javax.swing.JButton btVisualizarFilmes;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;

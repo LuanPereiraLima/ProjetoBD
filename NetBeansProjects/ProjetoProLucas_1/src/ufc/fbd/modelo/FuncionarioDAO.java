@@ -154,5 +154,34 @@ public class FuncionarioDAO {
         return null;
     }
     
+     public List<Funcionario> getFuncionariosNome(String nome){
+        String sql = "SELECT * FROM funcionario fun "
+                   + "INNER JOIN locadora loc "
+                   + "ON loc.id_locadora = fun.id_locadora "
+                   + "WHERE fun.nome LIKE ?";  
+        try {
+            PreparedStatement pstmt = conexao.prepareStatement(sql);
+            
+            pstmt.setString(1, "%"+nome+"%");
+            
+            ResultSet resultado = pstmt.executeQuery();
+            
+            resultado.beforeFirst();
+            List<Funcionario> lista = new ArrayList<>();
+            
+            while(resultado.next()){
+                lista.add(new Funcionario(resultado.getInt("id_funcionario"), resultado.getString("fun.nome"), resultado.getString("usuario"), resultado.getString("senha"), new Locadora(resultado.getInt("fun.id_locadora"), resultado.getString("loc.nome"), resultado.getDouble("preco_filmes"))));
+            }
+            
+            resultado.close();
+            pstmt.close();
+            return lista;
+        } catch (SQLException ex) {
+            Logger.getLogger(FuncionarioDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return null;
+    }
+    
     
 }

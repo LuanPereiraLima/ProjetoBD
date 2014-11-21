@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import ufc.fbd.excecoes.ErroNaInsercaoException;
-import ufc.fbd.excecoes.ErroNoUpdate;
+import ufc.fbd.modelo.excecoes.ErroNaInsercaoException;
+import ufc.fbd.modelo.excecoes.ErroNoUpdate;
 
 /**
  *
@@ -29,25 +29,28 @@ public class LocadoraDAO {
     }  
     
     public void addLocadora(Locadora locadora) throws ErroNaInsercaoException{
-        String sql = "INSERT INTO locadora (preco_filmes) VALUES (?)";    
+        String sql = "INSERT INTO locadora (nome, preco_filmes) VALUES (?, ?)";    
         try {
             PreparedStatement pstmt = conexao.prepareStatement(sql);
-            pstmt.setDouble(1, locadora.getPrecoFilmes());
+            pstmt.setString(1, locadora.getNome());
+            pstmt.setDouble(2, locadora.getPrecoFilmes());
             
             pstmt.execute();
             pstmt.close();
         } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
            throw new ErroNaInsercaoException();
         }
     }
     
     public void setLocadora(Locadora locadora) throws ErroNoUpdate{
-        String sql = "UPDATE cliente SET preco_filmes = ? WHERE id_cliente = ?";    
+        String sql = "UPDATE locadora SET nome = ?, preco_filmes = ? WHERE id_locadora = ?";    
         try {
             PreparedStatement pstmt = conexao.prepareStatement(sql);
 
-            pstmt.setDouble(1, locadora.getPrecoFilmes());
-            pstmt.setInt(1, locadora.getIdLocadora());
+            pstmt.setString(1, locadora.getNome());
+            pstmt.setDouble(2, locadora.getPrecoFilmes());
+            pstmt.setInt(3, locadora.getIdLocadora());
             
             pstmt.execute();
             pstmt.close();
@@ -56,11 +59,11 @@ public class LocadoraDAO {
         }
     }
     
-     public void dropLocadora(Locadora locadora){
+     public void dropLocadora(int id){
         String sql = "DELETE FROM locadora WHERE id_locadora = ?";    
         try {
             PreparedStatement pstmt = conexao.prepareStatement(sql);
-            pstmt.setInt(1, locadora.getIdLocadora());
+            pstmt.setInt(1, id);
             
             pstmt.execute();
             pstmt.close();
@@ -69,11 +72,35 @@ public class LocadoraDAO {
         }
     }
     
-     public Locadora getLocadora(Locadora locadora){
+     public Locadora getLocadora(int id){
         String sql = "SELECT * FROM locadora WHERE id_locadora = ?";    
         try {
             PreparedStatement pstmt = conexao.prepareStatement(sql);
-            pstmt.setInt(1, locadora.getIdLocadora());
+            pstmt.setInt(1, id);
+            
+            ResultSet resultado = pstmt.executeQuery();
+            resultado.beforeFirst();
+            Locadora locadora1 = null;
+            
+            while(resultado.next()){
+                locadora1 = new Locadora(resultado.getInt("id_locadora"), resultado.getString("nome"), resultado.getDouble("preco_filmes"));
+            }
+            
+            resultado.close();
+            pstmt.close();
+            return locadora1;
+        } catch (SQLException ex) {
+            Logger.getLogger(LocadoraDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return null;
+    }
+     
+     public Locadora getLocadoraNome(String nome){
+        String sql = "SELECT * FROM locadora WHERE nome = ?";    
+        try {
+            PreparedStatement pstmt = conexao.prepareStatement(sql);
+            pstmt.setString(1, nome);
             
             ResultSet resultado = pstmt.executeQuery();
             resultado.beforeFirst();
@@ -108,6 +135,30 @@ public class LocadoraDAO {
             
             resultado.close();
             stmtm.close();
+            return lista;
+        } catch (SQLException ex) {
+            Logger.getLogger(LocadoraDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return null;
+    }
+      
+      public List<Locadora> getLocadorasNome(String nome){
+        String sql = "SELECT * FROM locadora WHERE nome like ?";    
+        try {
+            PreparedStatement pstmt = conexao.prepareStatement(sql);
+            pstmt.setString(1, "%"+nome+"%");
+            ResultSet resultado = pstmt.executeQuery();
+            
+            resultado.beforeFirst();
+            List<Locadora> lista = new ArrayList<>();
+            
+            while(resultado.next()){
+                lista.add(new Locadora(resultado.getInt("id_locadora"), resultado.getString("nome"), resultado.getDouble("preco_filmes")));
+            }
+            
+            resultado.close();
+            pstmt.close();
             return lista;
         } catch (SQLException ex) {
             Logger.getLogger(LocadoraDAO.class.getName()).log(Level.SEVERE, null, ex);

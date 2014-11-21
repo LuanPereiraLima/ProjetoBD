@@ -5,6 +5,7 @@
  */
 package ufc.fbd.visao;
 
+import java.io.File;
 import java.sql.Connection;
 import java.util.List;
 import java.util.logging.Level;
@@ -23,7 +24,7 @@ import ufc.fbd.modelo.Locadora;
  *
  * @author Luan
  */
-public class CadastroFilme extends javax.swing.JFrame {
+public class EditarFilme extends javax.swing.JFrame {
 
     /**
      * Creates new form CadastroFilme
@@ -33,16 +34,17 @@ public class CadastroFilme extends javax.swing.JFrame {
     private Connection connection;
     private FilmeDAO filme; 
     private Locadora locadora;        
+    private Filme modificavel;
     
-    public CadastroFilme(Funcionario funcionarioLogado) {
+    public EditarFilme(Funcionario funcionarioLogado, Filme modificavel) {
         connection = new Conexao().getConexao();
         locadora = funcionarioLogado.getLocadora();
         categoria = new CategoriaDAO(connection);
         filme = new FilmeDAO(connection);
         preenchimento();
         initComponents();
-         setLocationRelativeTo(null);
-        
+        setLocationRelativeTo(null);
+        preenchendoFormulario();
     }
     
     private void preenchimento(){
@@ -63,7 +65,7 @@ public class CadastroFilme extends javax.swing.JFrame {
                     try {
                         Thread.sleep(2000);
                     } catch (InterruptedException ex) {
-                        Logger.getLogger(CadastroFilme.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(EditarFilme.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     dispose();
                 }
@@ -72,6 +74,14 @@ public class CadastroFilme extends javax.swing.JFrame {
             
         }
             
+    }
+    
+    private void preenchendoFormulario(){
+        txtNome.setText(modificavel.getNome());
+        txtIndicacao.setText(modificavel.getIndicacao()+"");
+        taDescricao.setText(modificavel.getDescricao());
+        jComboBox1.setSelectedItem(modificavel.getCategoria().getCategoria());
+        EscolhaArquivo.setSelectedFile(new File(modificavel.getCaminho()));
     }
 
     /**

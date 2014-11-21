@@ -28,7 +28,7 @@ public class FilmeDAO {
     }
     
     public void addFilme(Filme filme){
-        String sql = "INSERT INTO filme (nome, descricao, indicacao, id_categoria, url_imagem) VALUES (?, ?, ?, ?, ?)";    
+        String sql = "INSERT INTO filme (nome, descricao, indicacao, id_categoria, url_imagem, id_locadora) VALUES (?, ?, ?, ?, ?, ?)";    
         try {
             PreparedStatement pstmt = conexao.prepareStatement(sql);
             pstmt.setString(1, filme.getNome());
@@ -36,6 +36,8 @@ public class FilmeDAO {
             pstmt.setInt(3, filme.getIndicacao());
             pstmt.setInt(4, filme.getCategoria().getIdCategoria());
             pstmt.setString(5, filme.getCaminho());
+            pstmt.setInt(6, filme.getLocadora().getIdLocadora());
+            
             
             pstmt.execute();
             pstmt.close();
@@ -45,7 +47,7 @@ public class FilmeDAO {
     }
     
       public void setFilme(Filme filme){
-        String sql = "UPDATE filme SET nome = ?, descricao = ?, indicacao = ?, id_categoria = ?, url_imagem = ? WHERE id_filme = ?";    
+        String sql = "UPDATE filme SET nome = ?, descricao = ?, indicacao = ?, id_categoria = ?, url_imagem = ?, id_locadora = ? WHERE id_filme = ?";    
         try {
             PreparedStatement pstmt = conexao.prepareStatement(sql);
             
@@ -53,8 +55,9 @@ public class FilmeDAO {
             pstmt.setString(2, filme.getDescricao());
             pstmt.setInt(3, filme.getIndicacao());
             pstmt.setInt(4, filme.getCategoria().getIdCategoria());
-             pstmt.setString(5, filme.getCaminho());
-            pstmt.setInt(6, filme.getIdFilme());
+            pstmt.setString(5, filme.getCaminho());
+            pstmt.setInt(6, filme.getLocadora().getIdLocadora());
+            pstmt.setInt(7, filme.getIdFilme());
             
             pstmt.execute();
             pstmt.close();
@@ -96,7 +99,9 @@ public class FilmeDAO {
             while(resultado.next()){
                 int id_filme = resultado.getInt("id_filme");
                 categoria = new Categoria(resultado.getInt("id_categoria"), "categoria");
-                filme = new Filme(id_filme, resultado.getString("nome"), categoria , resultado.getString("descricao"), resultado.getInt("indicacao"), isFilmeAlugado(id_filme), resultado.getString("url_imagem"), new Locadora(resultado.getInt("fil.id_locadora"), resultado.getString("loc.nome"), resultado.getDouble("preco_filmes")));
+                filme = new Filme(id_filme, resultado.getString("nome"), categoria , resultado.getString("descricao"),
+                        resultado.getInt("indicacao"), isFilmeAlugado(id_filme), resultado.getString("url_imagem"),
+                        new Locadora(resultado.getInt("fil.id_locadora"), resultado.getString("loc.nome"), resultado.getDouble("preco_filmes")));
             }
             resultado.close();
             pstmt.close();
@@ -114,10 +119,10 @@ public class FilmeDAO {
                 + "INNER JOIN locadora AS loc "
                 + "ON cat.id_categoria = fil.id_categoria "
                 + "AND fil.id_locadora = loc.id_locadora "
-                + "WHERE fil.nome like '%'?'%'";
+                + "WHERE fil.nome LIKE ?";
         try {
             PreparedStatement pstmt = conexao.prepareStatement(sql);
-            pstmt.setString(1, nome);
+            pstmt.setString(1, "%"+nome+"%");
             ResultSet resultado = pstmt.executeQuery();
             
             resultado.beforeFirst();
@@ -128,7 +133,9 @@ public class FilmeDAO {
             while(resultado.next()){
                 categoria = new Categoria(resultado.getInt("id_categoria"), resultado.getString("categoria"));
                 int id_filme = resultado.getInt("id_filme");
-                lista.add(new Filme(id_filme , resultado.getString("fil.nome"), categoria, resultado.getString("descricao"), resultado.getInt("indicacao"), isFilmeAlugado(id_filme), resultado.getString("url_imagem"), new Locadora(resultado.getInt("fil.id_locadora"), resultado.getString("loc.nome"), resultado.getDouble("preco_filme"))));
+                lista.add(new Filme(id_filme , resultado.getString("fil.nome"), categoria, resultado.getString("descricao"), 
+                        resultado.getInt("indicacao"), isFilmeAlugado(id_filme), resultado.getString("url_imagem"), 
+                        new Locadora(resultado.getInt("fil.id_locadora"), resultado.getString("loc.nome"), resultado.getDouble("preco_filmes"))));
             }
             resultado.close();
             pstmt.close();
@@ -158,7 +165,9 @@ public class FilmeDAO {
             while(resultado.next()){
                 categoria = new Categoria(resultado.getInt("id_categoria"), resultado.getString("categoria"));
                 int id_filme = resultado.getInt("id_filme");
-                lista.add(new Filme(id_filme , resultado.getString("fil.nome"), categoria, resultado.getString("descricao"), resultado.getInt("indicacao"), isFilmeAlugado(id_filme), resultado.getString("url_imagem"), new Locadora(resultado.getInt("fil.id_locadora"), resultado.getString("loc.nome"), resultado.getDouble("preco_filme"))));
+                lista.add(new Filme(id_filme , resultado.getString("fil.nome"), categoria, resultado.getString("descricao"), 
+                        resultado.getInt("indicacao"), isFilmeAlugado(id_filme), resultado.getString("url_imagem"), 
+                        new Locadora(resultado.getInt("fil.id_locadora"), resultado.getString("loc.nome"), resultado.getDouble("preco_filmes"))));
             }
             resultado.close();
             stmtm.close();
@@ -188,7 +197,9 @@ public class FilmeDAO {
             while(resultado.next()){
                 categoria = new Categoria(resultado.getInt("id_categoria"), resultado.getString("categoria"));
                 int id_filme = resultado.getInt("id_filme");
-                lista.add(new Filme(id_filme , resultado.getString("nome"), categoria, resultado.getString("descricao"), resultado.getInt("indicacao"), isFilmeAlugado(id_filme), resultado.getString("url_imagem"), new Locadora(resultado.getInt("fil.id_locadora"), resultado.getString("loc.nome"), resultado.getDouble("preco_filme"))));
+                lista.add(new Filme(id_filme , resultado.getString("nome"), categoria, resultado.getString("descricao"), 
+                        resultado.getInt("indicacao"), isFilmeAlugado(id_filme), resultado.getString("url_imagem"),
+                        new Locadora(resultado.getInt("fil.id_locadora"), resultado.getString("loc.nome"), resultado.getDouble("preco_filmes"))));
             }
             resultado.close();
             stmtm.close();

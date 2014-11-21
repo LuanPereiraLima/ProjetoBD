@@ -8,7 +8,7 @@ package ufc.fbd.visao;
 import java.sql.Connection;
 import javax.swing.JOptionPane;
 import ufc.fbd.conexao.Conexao;
-import ufc.fbd.excecoes.ErroNaInsercaoException;
+import ufc.fbd.modelo.excecoes.ErroNaInsercaoException;
 import ufc.fbd.modelo.Cliente;
 import ufc.fbd.modelo.ClienteDAO;
 import ufc.fbd.modelo.Funcionario;
@@ -28,6 +28,7 @@ public class CadastrarCliente extends javax.swing.JFrame {
     private Locadora locadora;
     public CadastrarCliente(Funcionario funcionarioLogado) {
         initComponents();
+         setLocationRelativeTo(null);
         conexao = new Conexao().getConexao();
         clienteDAO = new ClienteDAO(conexao);
         locadora = funcionarioLogado.getLocadora();
@@ -127,7 +128,6 @@ public class CadastrarCliente extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
               try {
             clienteDAO.addCliente(new Cliente(txtNome.getText(), Integer.parseInt(txtCPF.getText()), Integer.parseInt(txtIdade.getText()), locadora));
-            JOptionPane.showMessageDialog(null, "Cliente cadastrado com sucesso!", "Cadastrado!", JOptionPane.INFORMATION_MESSAGE);
             this.dispose();
         } catch (ErroNaInsercaoException ex) {
             JOptionPane.showMessageDialog(null, "Ocorreu algum erro na alteração.", "Erro!", JOptionPane.ERROR_MESSAGE);

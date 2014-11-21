@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import ufc.fbd.excecoes.ErroNaInsercaoException;
-import ufc.fbd.excecoes.ErroNoUpdate;
+import ufc.fbd.modelo.excecoes.ErroNaInsercaoException;
+import ufc.fbd.modelo.excecoes.ErroNoUpdate;
 
 /**
  *
@@ -76,14 +76,14 @@ public class ClienteDAO {
         }
     }
     
-     public Cliente getCliente(Cliente client){
+     public Cliente getCliente(int id){
         String sql = "SELECT * FROM cliente cl "
                 + "INNER JOIN locadora lc "
                 + "ON cl.id_locadora = lc.id_locadora "
                 + "WHERE cl.id_cliente = ?";    
         try {
             PreparedStatement pstmt = conexao.prepareStatement(sql);
-            pstmt.setInt(1, client.getIdCliente());
+            pstmt.setInt(1, id);
             
             ResultSet resultado = pstmt.executeQuery();
             resultado.beforeFirst();
@@ -108,11 +108,11 @@ public class ClienteDAO {
      public List<Cliente> getClientesNome(String nome){
         String sql = "SELECT * FROM cliente cl "
                 + "INNER JOIN locadora lc "
-                + "ON cl.id_locadora = lc.id_locadora"
-                + "WHERE cl.nome LIKE %?%";    
+                + "ON cl.id_locadora = lc.id_locadora "
+                + "WHERE cl.nome LIKE ?";    
         try {
             PreparedStatement pstmt = conexao.prepareStatement(sql);
-            pstmt.setString(1, nome);
+            pstmt.setString(1,"%"+nome+"%");
             
             ResultSet resultado = pstmt.executeQuery();
             

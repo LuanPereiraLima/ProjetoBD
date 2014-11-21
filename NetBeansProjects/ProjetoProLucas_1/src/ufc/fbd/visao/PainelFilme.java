@@ -5,6 +5,7 @@
  */
 package ufc.fbd.visao;
 
+import javax.swing.ImageIcon;
 import ufc.fbd.modelo.Filme;
 
 /**
@@ -29,6 +30,8 @@ public class PainelFilme extends javax.swing.JPanel {
         
         if(filme.isAlugado() && dispor)
             ljDisponivel.setOpaque(true);
+        
+        jlImagem.setIcon(new ImageIcon(filme.getCaminho()));
     }
     
     

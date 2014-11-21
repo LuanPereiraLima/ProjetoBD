@@ -8,7 +8,7 @@ package ufc.fbd.visao;
 import java.sql.Connection;
 import javax.swing.JOptionPane;
 import ufc.fbd.conexao.Conexao;
-import ufc.fbd.excecoes.ErroNoUpdate;
+import ufc.fbd.modelo.excecoes.ErroNoUpdate;
 import ufc.fbd.modelo.Cliente;
 import ufc.fbd.modelo.ClienteDAO;
 import ufc.fbd.modelo.Funcionario;
@@ -31,6 +31,7 @@ public class EditarCliente extends javax.swing.JFrame {
         this.cliente = cliente;
         this.locadora = funcionarioLogado.getLocadora();
         initComponents();
+        setLocationRelativeTo(null);
         conexao = new Conexao().getConexao();
         clienteDAO = new ClienteDAO(conexao);
         preenchendoCampos();

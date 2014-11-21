@@ -9,6 +9,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.sql.Connection;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -16,6 +18,7 @@ import javax.swing.table.DefaultTableModel;
 import ufc.fbd.conexao.Conexao;
 import ufc.fbd.modelo.Categoria;
 import ufc.fbd.modelo.CategoriaDAO;
+import ufc.fbd.modelo.Funcionario;
 
 /**
  *
@@ -33,12 +36,13 @@ public class TabelaCategorias extends javax.swing.JFrame implements TableModelLi
     private int selecionada = -1;
     
     public TabelaCategorias() {
-        setLocationRelativeTo(null);
         montandoModeloTabela();
         initComponents();
+        setLocationRelativeTo(null);
         conexao = new Conexao().getConexao();
         categoria = new CategoriaDAO(conexao);
-        preenchendoListaFilmes();
+        verificacaoInicial();
+        preenchendoListaCategorias();
            jTable1.addMouseListener(new MouseListener() {
 
               @Override
@@ -107,17 +111,29 @@ public class TabelaCategorias extends javax.swing.JFrame implements TableModelLi
          
     }
     
-    private void preenchendoListaFilmes(){
+     private void removendoLinhasTabela(){
+       modelo.setRowCount(0);
+    }
+    
+    private void preenchendoListaCategorias(){
+        removendoLinhasTabela();
         List<Categoria> listaCategorias = categoria.getCategorias();
         if(listaCategorias != null){
             for(Categoria cat : listaCategorias){
                 modelo.addRow(new Object[]{cat.getIdCategoria(),cat.getCategoria()});
             }
+        }
+    }
+    
+         private void verificacaoInicial(){
+        List<Categoria> listaCategorias = categoria.getCategorias();
+        if(listaCategorias != null && listaCategorias.size() > 0){
         }else{
-            JOptionPane.showMessageDialog(null, "Não existe categorias cadastrados.");
+            JOptionPane.showMessageDialog(null, "Não existem Categorias cadastrados."); 
             dispose();
         }
     }
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -173,7 +189,8 @@ public class TabelaCategorias extends javax.swing.JFrame implements TableModelLi
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 162, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btEditar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -184,15 +201,15 @@ public class TabelaCategorias extends javax.swing.JFrame implements TableModelLi
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 201, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addContainerGap()
                         .addComponent(btEditar)
                         .addGap(18, 18, 18)
                         .addComponent(btExcluir)
                         .addGap(69, 69, 69)
-                        .addComponent(btSair)))
+                        .addComponent(btSair))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -219,7 +236,7 @@ public class TabelaCategorias extends javax.swing.JFrame implements TableModelLi
             Integer id = (Integer) modelo.getValueAt(selecionada, 0);
             if(JOptionPane.showConfirmDialog(null, "Tem certeza que deseja excluir a categoria selecionada?", "Exclusão", 2)== JOptionPane.OK_OPTION){
             categoria.dropCategoria(id);
-            modelo.removeRow(selecionada);
+            preenchendoListaCategorias();
             selecionada = -1;
         }
         }else{
@@ -236,44 +253,22 @@ public class TabelaCategorias extends javax.swing.JFrame implements TableModelLi
         }else{
             JOptionPane.showMessageDialog(null, "Selecione a categoria na tabela");
         }
+        atualizarAutomaticamente();
     }//GEN-LAST:event_btEditarActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(TabelaCategorias.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(TabelaCategorias.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(TabelaCategorias.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(TabelaCategorias.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
+    private void atualizarAutomaticamente(){
+         new Thread(new Runnable() {
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new TabelaCategorias().setVisible(true);
-            }
-        });
+             @Override
+             public void run() {
+                 try {
+                     Thread.sleep(1000);
+                 } catch (InterruptedException ex) {
+                     Logger.getLogger(TabelaFilmes.class.getName()).log(Level.SEVERE, null, ex);
+                 }
+                 preenchendoListaCategorias();
+             }
+         }).start();
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

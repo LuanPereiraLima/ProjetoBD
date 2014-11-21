@@ -9,13 +9,18 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.sql.Connection;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import ufc.fbd.conexao.Conexao;
+import ufc.fbd.modelo.Aluga;
+import ufc.fbd.modelo.AlugaDAO;
 import ufc.fbd.modelo.Filme;
 import ufc.fbd.modelo.FilmeDAO;
+import ufc.fbd.modelo.Funcionario;
 
 /**
  *
@@ -31,13 +36,18 @@ public class TabelaFilmes extends javax.swing.JFrame implements TableModelListen
     private FilmeDAO filmeDAO;
     private Connection conexao;
     private int selecionada = -1;
+    private Funcionario funcionarioLogado;
+    private AlugaDAO alugaDAO;
     
-    public TabelaFilmes() {
-        setLocationRelativeTo(null);
+    public TabelaFilmes(Funcionario funcionarioLogado) {
+        this.funcionarioLogado = funcionarioLogado;
         montandoModeloTabela();
         initComponents();
+        setLocationRelativeTo(null);
         conexao = new Conexao().getConexao();
         filmeDAO = new FilmeDAO(conexao);
+        alugaDAO = new AlugaDAO(conexao);
+        verificacaoInicial();
         preenchendoListaFilmes("");
            jTable1.addMouseListener(new MouseListener() {
 
@@ -71,6 +81,7 @@ public class TabelaFilmes extends javax.swing.JFrame implements TableModelListen
            btEditar.setEnabled(false);
            btExcluir.setEnabled(false);
            btAlugar.setEnabled(false);
+           btDevolucao.setEnabled(false);
     }
     
     private void montandoModeloTabela(){
@@ -79,14 +90,14 @@ public class TabelaFilmes extends javax.swing.JFrame implements TableModelListen
 
             },
             new String [] {
-                "ID", "Nome", "Indicação", "Categoria"
+                "ID", "Nome", "Indicação", "Categoria", "Alugado"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false
+                false, false, false, false, false
             };
 
             @Override
@@ -102,28 +113,40 @@ public class TabelaFilmes extends javax.swing.JFrame implements TableModelListen
     }
     
     private void linhaSelecionada(){
-        
         btEditar.setEnabled(true);
         btExcluir.setEnabled(true);
-        btAlugar.setEnabled(true);
+        if(selecionada > -1){
+            String valor = (String) modelo.getValueAt(selecionada, 4);
+            if(valor.equals("Não")){
+                 btAlugar.setEnabled(true);
+            }else{
+                 btDevolucao.setEnabled(true);
+            }
+        }
+        
     }
     
-    private void removendoLinhasTabela(){
-        
-        for(int i = 0; i < modelo.getRowCount(); i++){ 
-            modelo.removeRow(i);
-        }
+   private void removendoLinhasTabela(){
+       modelo.setRowCount(0);
     }
     private void preenchendoListaFilmes(String nome){
         removendoLinhasTabela();
         List<Filme> listaFilmes = filmeDAO.getFilmesNome(nome);
-        if(listaFilmes != null && listaFilmes.size() > 0){
+        if(listaFilmes != null){
             for(Filme filme : listaFilmes){
-                modelo.addRow(new Object[]{filme.getIdFilme(), filme.getNome(), "+"+filme.getIndicacao(), filme.getCategoria().getCategoria()});
+                String alugado = "Não";
+                if(filme.isAlugado())
+                    alugado = "Sim";
+                modelo.addRow(new Object[]{filme.getIdFilme(), filme.getNome(), "+"+filme.getIndicacao(), filme.getCategoria().getCategoria(), alugado});
             }
+        }
+    }
+    
+    private void verificacaoInicial(){
+        List<Filme> listaFilmes = filmeDAO.getFilmes();
+        if(listaFilmes != null && listaFilmes.size() > 0){
         }else{
-            JOptionPane.showMessageDialog(null, "Não existem filmes cadastrados.");
-            
+            JOptionPane.showMessageDialog(null, "Não existem filmes cadastrados."); 
             dispose();
         }
     }
@@ -147,6 +170,7 @@ public class TabelaFilmes extends javax.swing.JFrame implements TableModelListen
         btAlugar = new javax.swing.JButton();
         tfBusca = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
+        btDevolucao = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(620, 443));
@@ -179,7 +203,7 @@ public class TabelaFilmes extends javax.swing.JFrame implements TableModelListen
             }
         });
 
-        btVisualizar.setText("Visualizar");
+        btVisualizar.setText("Visualizar Todos");
         btVisualizar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btVisualizarActionPerformed(evt);
@@ -187,6 +211,11 @@ public class TabelaFilmes extends javax.swing.JFrame implements TableModelListen
         });
 
         btAlugar.setText("Alugar");
+        btAlugar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btAlugarActionPerformed(evt);
+            }
+        });
 
         tfBusca.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
@@ -195,6 +224,13 @@ public class TabelaFilmes extends javax.swing.JFrame implements TableModelListen
         });
 
         jLabel1.setText("Pesquisa:");
+
+        btDevolucao.setText("Devolução");
+        btDevolucao.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btDevolucaoActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -216,7 +252,8 @@ public class TabelaFilmes extends javax.swing.JFrame implements TableModelListen
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(btSair))
                     .addComponent(btVisualizar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btAlugar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(btAlugar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btDevolucao, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -228,6 +265,8 @@ public class TabelaFilmes extends javax.swing.JFrame implements TableModelListen
                 .addComponent(btExcluir)
                 .addGap(18, 18, 18)
                 .addComponent(btAlugar)
+                .addGap(18, 18, 18)
+                .addComponent(btDevolucao)
                 .addGap(18, 18, 18)
                 .addComponent(btVisualizar)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -265,25 +304,42 @@ public class TabelaFilmes extends javax.swing.JFrame implements TableModelListen
             Integer id = (Integer) modelo.getValueAt(selecionada, 0);
             if(JOptionPane.showConfirmDialog(null, "Tem certeza que deseja excluir o filme selecionado?", "Exclusão", 2)== JOptionPane.OK_OPTION){
             filmeDAO.dropFilme(id);
-            modelo.removeRow(selecionada);
+                preenchendoListaFilmes(tfBusca.getText());
             selecionada = -1;
         }
         }else{
             JOptionPane.showMessageDialog(null, "Selecione o Filme na tabela");
         }
+        atualizarAutomaticamente();
     }//GEN-LAST:event_btExcluirActionPerformed
 
     private void btEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btEditarActionPerformed
         if(selecionada > -1){
             Integer id = (Integer) modelo.getValueAt(selecionada, 0);
-           // Cliente cliente = clienteDAO.getCliente(id);
-            //new EditarCliente(cliente).setVisible(true);
-            selecionada = -1;
+            Filme filme = filmeDAO.getFilme(id);
+            new EditarFilme(funcionarioLogado, filme).setVisible(true);
         }else{
             JOptionPane.showMessageDialog(null, "Selecione o Filme na tabela");
         }
+        atualizarAutomaticamente();
     }//GEN-LAST:event_btEditarActionPerformed
 
+    private void atualizarAutomaticamente(){
+         new Thread(new Runnable() {
+
+             @Override
+             public void run() {
+                 try {
+                     Thread.sleep(500);
+                      preenchendoListaFilmes(tfBusca.getText());
+                 } catch (InterruptedException ex) {
+                     Logger.getLogger(TabelaFilmes.class.getName()).log(Level.SEVERE, null, ex);
+                 }
+                
+             }
+         }).start();
+    }
+    
     private void btVisualizarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btVisualizarActionPerformed
         new ListaFilmes().setVisible(true);
     }//GEN-LAST:event_btVisualizarActionPerformed
@@ -292,44 +348,33 @@ public class TabelaFilmes extends javax.swing.JFrame implements TableModelListen
         preenchendoListaFilmes(tfBusca.getText());
     }//GEN-LAST:event_tfBuscaKeyTyped
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(TabelaFilmes.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(TabelaFilmes.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(TabelaFilmes.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(TabelaFilmes.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+    private void btAlugarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btAlugarActionPerformed
+         if(selecionada > -1){
+            Integer id = (Integer) modelo.getValueAt(selecionada, 0);
+             Filme filme = filmeDAO.getFilme(id);
+             new SelecaoClienteParaAlugar(funcionarioLogado, filme).setVisible(true);
+            selecionada = -1;
+        }else{
+            JOptionPane.showMessageDialog(null, "Selecione o Filme na tabela");
         }
-        //</editor-fold>
-        //</editor-fold>
+         atualizarAutomaticamente();
+    }//GEN-LAST:event_btAlugarActionPerformed
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new TabelaFilmes().setVisible(true);
-            }
-        });
-    }
+    private void btDevolucaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btDevolucaoActionPerformed
+      if(selecionada > -1){
+            Integer id = (Integer) modelo.getValueAt(selecionada, 0);
+            alugaDAO.realizarDevolucao(id);
+            selecionada = -1;
+            btDevolucao.setEnabled(false);
+        }else{
+            JOptionPane.showMessageDialog(null, "Selecione o Filme na tabela");
+        }
+        atualizarAutomaticamente();
+    }//GEN-LAST:event_btDevolucaoActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btAlugar;
+    private javax.swing.JButton btDevolucao;
     private javax.swing.JButton btEditar;
     private javax.swing.JButton btExcluir;
     private javax.swing.JButton btSair;
@@ -343,6 +388,5 @@ public class TabelaFilmes extends javax.swing.JFrame implements TableModelListen
 
     @Override
     public void tableChanged(TableModelEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

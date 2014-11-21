@@ -28,8 +28,8 @@ public class ListaFilmes extends javax.swing.JFrame implements EventoCliqueFilme
     public ListaFilmes(int id) {
         super("Lista de Filmes do cliente");
         paineis = new ArrayList<>();
-        setLocationRelativeTo(null);
         initComponents();
+        setLocationRelativeTo(null);
         conexao = new Conexao().getConexao();
         filmeDAO = new FilmeDAO(conexao);
         preenchendoListaDeFilmesCliente(id);
@@ -37,8 +37,8 @@ public class ListaFilmes extends javax.swing.JFrame implements EventoCliqueFilme
     public ListaFilmes(){
         super("Lista de Filmes Disponíveis");
         paineis = new ArrayList<>();
-        setLocationRelativeTo(null);
         initComponents();
+        setLocationRelativeTo(null);
         conexao = new Conexao().getConexao();
         filmeDAO = new FilmeDAO(conexao);
         preenchendoListaDeFilmes();

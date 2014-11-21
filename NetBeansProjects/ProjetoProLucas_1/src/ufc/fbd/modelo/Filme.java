@@ -28,9 +28,9 @@ public class Filme {
         this.indicacao = indicacao;
         this.alugado = alugado;
         this.caminho = caminho;
-        this.alugado = alugado;
+        this.locadora = locadora;
     }
-    
+
     public Filme(String nome, Categoria categoria, String descricao, int indicacao, boolean alugado, String caminho, Locadora locadora) {
         this.nome = nome;
         this.categoria = categoria;
@@ -97,5 +97,15 @@ public class Filme {
     public void setIndicacao(int indicacao) {
         this.indicacao = indicacao;
     }
+    
+    
+    public Locadora getLocadora() {
+        return locadora;
+    }
+
+    public void setLocadora(Locadora locadora) {
+        this.locadora = locadora;
+    }
+    
     
  }
